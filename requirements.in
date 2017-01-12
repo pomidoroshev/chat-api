@@ -1,0 +1,8 @@
+aiohttp
+aiohttp_autoreload
+aiopg
+-e git+https://github.com/pomidoroshev/aiovalidator.git#egg=aiovalidator
+alembic
+bcrypt
+defaultenv
+SQLAlchemy

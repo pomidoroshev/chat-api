@@ -1,0 +1,7 @@
+pytest
+pytest-cov
+pytest-aiohttp
+pylint
+typed_ast
+flake8
+autopep8
