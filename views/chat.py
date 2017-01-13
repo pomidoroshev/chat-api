@@ -101,7 +101,7 @@ class Users(web.View):
 
     async def get(self):
         # TODO: Implement
-        abort(status=400, text='Not Implemented')
+        raise abort(status=400, text='Not Implemented')
 
 
 class History(web.View):

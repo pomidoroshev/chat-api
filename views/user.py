@@ -28,7 +28,7 @@ class Auth(web.View):
 
         if user:
             if not validate_password(fields.password, user.password):
-                abort(status=418, text='Wrong password')
+                raise abort(status=418, text='Wrong password')
         else:
             password_hash = bcrypt.hashpw(
                 fields.password.encode(),

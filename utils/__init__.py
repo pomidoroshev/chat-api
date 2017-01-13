@@ -51,7 +51,6 @@ def auth(fn):
             if user:
                 cls.request['user'] = user
                 return await fn(cls)
-
-        abort(status=401, text='Unauthorized')
+        raise abort(status=401, text='Unauthorized')
 
     return wrapped
