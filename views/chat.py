@@ -111,12 +111,19 @@ class History(web.View):
 
     class Field:
         id = IntegerField(methods={'get'})
-        offset = IntegerField(methods={'get'}, required=False)
+        limit = IntegerField(methods={'get'}, default=10)
+        last_id = IntegerField(methods={'get'}, required=False)
 
     @auth
     async def get(self):
         conn = self.request['conn']
         fields = self.request['fields']
+
+        where = [
+            Message.chat == fields.id,
+        ]
+        if fields.last_id:
+            where.append(Message.id < fields.last_id)
 
         join = sa.join(Message, User, User.id == Message.user)
         query = sa.select([
@@ -125,12 +132,12 @@ class History(web.View):
             Message.datetime,
             User.login,
         ]).select_from(join)
-        query = query.where(
-            Message.chat == fields.id).order_by(sa.desc(Message.id))
+        query = query.where(sa.and_(*where)).order_by(
+            sa.desc(Message.id)).limit(fields.limit)
 
         res = await conn.execute(query)
         history = await res.fetchall()
-        return web.json_response(history, dumps=dumps)
+        return web.json_response(list(reversed(history)), dumps=dumps)
 
 
 class Post(web.View):
