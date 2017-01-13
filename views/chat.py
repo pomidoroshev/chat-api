@@ -10,10 +10,14 @@ class List(web.View):
     """
     Get chats
     """
-
+    @auth
     async def get(self):
         conn = self.request['conn']
-        query = sa.select([Chat]).select_from(Chat)
+        join = sa.outerjoin(Chat, UserChat, sa.and_(
+            UserChat.chat == Chat.id,
+            UserChat.user == self.request['user'].id,
+        ))
+        query = sa.select([Chat, UserChat.user]).select_from(join)
         res = await conn.execute(query)
         chat_list = await res.fetchall()
         return web.json_response(chat_list, dumps=dumps)
@@ -29,8 +33,6 @@ class Create(web.View):
 
     @auth
     async def post(self):
-        print(dict(self.request))
-
         conn = self.request['conn']
         fields = self.request['fields']
 
