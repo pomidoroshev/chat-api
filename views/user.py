@@ -1,10 +1,10 @@
-import bcrypt
-import sqlalchemy as sa
 from aiohttp import web
 from aiovalidator import StrField, abort
+import bcrypt
+import sqlalchemy as sa
 
-from models import User
-from utils import validate_password, generate_token
+from models.models import User
+from utils import generate_token, validate_password
 
 
 class Auth(web.View):

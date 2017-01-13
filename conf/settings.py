@@ -1,3 +1,6 @@
+"""
+App settings
+"""
 from defaultenv import ENV
 
 DEBUG = bool(int(ENV.DEBUG or 0))

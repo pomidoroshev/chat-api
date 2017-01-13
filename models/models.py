@@ -1,8 +1,8 @@
-from datetime import datetime
+from datetime import datetime  # pylint: disable=unused-import
 
 import sqlalchemy as sa
 
-from models.base import Base
+from .base import Base
 
 __all__ = [
     'Chat',

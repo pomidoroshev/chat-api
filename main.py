@@ -1,12 +1,13 @@
+"""
+Main chat module
+"""
+
 import asyncio
 
-import aiohttp_autoreload
 from aiohttp import web
+import aiohttp_autoreload
 from aiopg.sa import create_engine
-from aiovalidator import (
-    validator_factory,
-    middleware_exception,
-)
+from aiovalidator import middleware_exception, validator_factory
 
 from conf import settings
 from middlewares import db
@@ -29,6 +30,9 @@ async def stop_background_tasks(app: web.Application):
 
 
 def create_app(loop=None):
+    """
+    Create app
+    """
     if loop is None:
         loop = asyncio.get_event_loop()
 

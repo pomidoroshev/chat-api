@@ -1,9 +1,9 @@
-import sqlalchemy as sa
 from aiohttp import web
-from aiovalidator import StrField, IntegerField, abort
+from aiovalidator import IntegerField, StrField, abort
+import sqlalchemy as sa
 
-from models import Chat, UserChat, Message, User
-from utils import dumps, auth
+from models.models import Chat, Message, User, UserChat
+from utils import auth, dumps
 
 
 class List(web.View):

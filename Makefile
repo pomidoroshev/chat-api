@@ -15,7 +15,7 @@ PIP_SYNC = pip-sync
 
 PYLINT = pylint
 PYLINTFLAGS = -rn
-PYTHONFILES := $(shell find . -not -path "./.venv/*" -type f -name '*.py')
+PYTHONFILES := $(shell find . -not -path "./.venv/*" -not -path "./migrations/*" -type f -name '*.py')
 
 PYTEST = pytest
 

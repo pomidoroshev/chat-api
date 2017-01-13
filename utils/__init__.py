@@ -1,15 +1,15 @@
 import datetime
+from functools import wraps
+import hashlib
 import json
 import time
 
 import bcrypt
-import hashlib
 import sqlalchemy as sa
 from aiopg.sa.result import RowProxy
 from aiovalidator import abort
-from functools import wraps
 
-from models import User
+from models.models import User
 
 
 def validate_password(password, user_password):
@@ -23,10 +23,10 @@ def generate_token(user_id):
 
 
 class JSONEncoder(json.JSONEncoder):
-    def default(self, obj):
+    def default(self, obj):  # pylint: disable=method-hidden
         if isinstance(obj, RowProxy):
             return dict(obj)
-        elif type(obj) == datetime.datetime:
+        elif isinstance(obj, datetime.datetime):
             return obj.strftime('%Y-%m-%d %H:%M:%S')
 
         return json.JSONEncoder.default(self, obj)

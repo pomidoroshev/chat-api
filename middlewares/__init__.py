@@ -1,3 +1,7 @@
+"""
+App middlewares
+"""
+
 from functools import wraps
 
 __all__ = ['db']
