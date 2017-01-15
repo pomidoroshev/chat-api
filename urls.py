@@ -6,6 +6,7 @@ from views.chat import (
     Users as ChatUsers,
     History as ChatHistory,
     Post as ChatPost,
+    Websocket as ChatWebsocket,
 )
 from views.user import Auth as UserAuth
 
@@ -18,4 +19,5 @@ urls = (
     ('*', '/chat/{id}/users', ChatUsers),
     ('*', '/chat/{id}/history', ChatHistory),
     ('*', '/chat/{id}/post', ChatPost),
+    ('*', '/chat/{id}/ws', ChatWebsocket),
 )

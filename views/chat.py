@@ -1,4 +1,4 @@
-from aiohttp import web
+from aiohttp import web, WSMsgType
 from aiovalidator import IntegerField, StrField, abort
 import sqlalchemy as sa
 
@@ -169,7 +169,40 @@ class Post(BaseView):
         message = await (await self.db.execute(query)).fetchone()
         message = dict(message)
         message['login'] = self.request['user'].login
-
-        # TODO: Send `message` to websocket
+        msg = dumps(message)
+        if fields.id in self.request.app['websockets']:
+            for ws in self.request.app['websockets'][fields.id]:
+                ws.send_str(msg)
 
         return web.json_response({})
+
+
+class Websocket(web.View):
+    async def get(self):
+        chat_id = int(self.request.match_info['id'])
+        if chat_id not in self.request.app['websockets']:
+            self.request.app['websockets'][chat_id] = set()
+
+        try:
+            ws_response = web.WebSocketResponse()
+            await ws_response.prepare(self.request)
+
+            async for msg in ws_response:
+                if msg.type == WSMsgType.TEXT:
+                    if msg.data == 'close':
+                        await ws_response.close()
+                    elif msg.data.startswith('open'):
+                        self.request.app['websockets'][chat_id].add(
+                            ws_response)
+                    else:
+                        ws_response.send_str(msg.data)
+
+                elif msg.type == WSMsgType.ERROR:
+                    print('Websocket exception %s', ws_response.exception())
+
+            if ws_response in self.request.app['websockets'][chat_id]:
+                self.request.app['websockets'][chat_id].discard(ws_response)
+        finally:
+            pass
+
+        return ws_response
