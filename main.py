@@ -10,7 +10,7 @@ from aiopg.sa import create_engine
 from aiovalidator import middleware_exception, validator_factory
 
 from conf import settings
-from middlewares import db
+from middlewares import crossdomain, db
 from urls import urls
 
 
@@ -41,6 +41,7 @@ def create_app(loop=None):
 
     app = web.Application(
         middlewares=[
+            crossdomain,
             validator_factory(),
             middleware_exception,
             db,
