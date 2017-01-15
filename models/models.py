@@ -27,6 +27,7 @@ class Message(Base):
     chat = sa.Column(
         sa.ForeignKey('chat.id', deferrable=True, initially='DEFERRED'),
         nullable=False,
+        index=True,
     )
     user = sa.Column(
         sa.ForeignKey('user.id', deferrable=True, initially='DEFERRED'),
