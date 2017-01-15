@@ -37,6 +37,13 @@ class Create(BaseView):
         query = sa.insert(Chat).values(name=fields.name)
         chat = await (await self.db.execute(query)).fetchone()
 
+        query = sa.insert(UserChat).values(
+            user=self.request['user'].id,
+            chat=chat.id,
+        )
+
+        await self.db.execute(query)
+
         return web.json_response({
             'id': chat.id,
         })
