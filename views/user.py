@@ -6,8 +6,10 @@ import sqlalchemy as sa
 from models.models import User
 from utils import generate_token, validate_password
 
+from . import BaseView
 
-class Auth(web.View):
+
+class Auth(BaseView):
     """
     User auth and register
     """
@@ -20,11 +22,13 @@ class Auth(web.View):
         fields = self.request['fields']
         conn = self.request['conn']
 
+        if not all([fields.login, fields.password]):
+            raise abort(status=400, text='Bad Request')
+
         query = sa.select([
             User]).select_from(User).where(User.login == fields.login)
 
-        res = await conn.execute(query)
-        user = await res.fetchone()
+        user = await (await conn.execute(query)).fetchone()
 
         if user:
             if not validate_password(fields.password, user.password):
@@ -38,8 +42,7 @@ class Auth(web.View):
                 login=fields.login,
                 password=password_hash.decode(),
             )
-            res = await conn.execute(query)
-            user = await res.fetchone()
+            user = await (await conn.execute(query)).fetchone()
 
         token = generate_token(user.id)
         query = sa.update(User).where(User.id == user.id).values(

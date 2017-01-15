@@ -4,26 +4,25 @@ import sqlalchemy as sa
 
 from models.models import Chat, Message, User, UserChat
 from utils import auth, dumps
+from views import BaseView
 
 
-class List(web.View):
+class List(BaseView):
     """
     Get chats
     """
     @auth
     async def get(self):
-        conn = self.request['conn']
         join = sa.outerjoin(Chat, UserChat, sa.and_(
             UserChat.chat == Chat.id,
             UserChat.user == self.request['user'].id,
         ))
         query = sa.select([Chat, UserChat.user]).select_from(join)
-        res = await conn.execute(query)
-        chat_list = await res.fetchall()
+        chat_list = await (await self.db.execute(query)).fetchall()
         return web.json_response(chat_list, dumps=dumps)
 
 
-class Create(web.View):
+class Create(BaseView):
     """
     Create new chat
     """
@@ -33,18 +32,17 @@ class Create(web.View):
 
     @auth
     async def post(self):
-        conn = self.request['conn']
         fields = self.request['fields']
 
         query = sa.insert(Chat).values(name=fields.name)
-        chat = await (await conn.execute(query)).fetchone()
+        chat = await (await self.db.execute(query)).fetchone()
 
         return web.json_response({
             'id': chat.id,
         })
 
 
-class Login(web.View):
+class Login(BaseView):
     """
     Login to chat
     """
@@ -54,7 +52,7 @@ class Login(web.View):
 
     @auth
     async def post(self):
-        conn = self.request['conn']
+        # TODO: Check if user is already in chat
         fields = self.request['fields']
 
         query = sa.insert(UserChat).values(
@@ -62,12 +60,12 @@ class Login(web.View):
             chat=fields.id,
         )
 
-        await conn.execute(query)
+        await self.db.execute(query)
 
         return web.json_response({})
 
 
-class Logout(web.View):
+class Logout(BaseView):
     """
     Logout from chat
     """
@@ -77,7 +75,7 @@ class Logout(web.View):
 
     @auth
     async def post(self):
-        conn = self.request['conn']
+        # TODO: Check if user is in chat
         fields = self.request['fields']
 
         query = sa.delete(UserChat).where(
@@ -86,12 +84,12 @@ class Logout(web.View):
                 UserChat.chat == fields.id,
             )
         )
-        await conn.execute(query)
+        await self.db.execute(query)
 
         return web.json_response({})
 
 
-class Users(web.View):
+class Users(BaseView):
     """
     Get chat users
     """
@@ -104,7 +102,7 @@ class Users(web.View):
         raise abort(status=400, text='Not Implemented')
 
 
-class History(web.View):
+class History(BaseView):
     """
     Get chat history
     """
@@ -116,7 +114,6 @@ class History(web.View):
 
     @auth
     async def get(self):
-        conn = self.request['conn']
         fields = self.request['fields']
 
         where = [
@@ -135,12 +132,11 @@ class History(web.View):
         query = query.where(sa.and_(*where)).order_by(
             sa.desc(Message.id)).limit(fields.limit)
 
-        res = await conn.execute(query)
-        history = await res.fetchall()
+        history = await (await self.db.execute(query)).fetchall()
         return web.json_response(list(reversed(history)), dumps=dumps)
 
 
-class Post(web.View):
+class Post(BaseView):
     """
     Post to chat
     """
@@ -151,7 +147,6 @@ class Post(web.View):
 
     @auth
     async def post(self):
-        conn = self.request['conn']
         fields = self.request['fields']
 
         query = sa.insert(Message).values(
@@ -164,8 +159,7 @@ class Post(web.View):
             Message.datetime,
         )
 
-        res = await conn.execute(query)
-        message = await res.fetchone()
+        message = await (await self.db.execute(query)).fetchone()
         message = dict(message)
         message['login'] = self.request['user'].login
 
