@@ -23,7 +23,7 @@ FLAKE8 = flake8
 AUTOPEP8 = autopep8
 
 ISORT = isort
-ISORTFLAGS = -fss
+ISORTFLAGS = -fss -ns __init__.py
 
 init:
 	( \
