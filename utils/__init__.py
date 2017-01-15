@@ -4,11 +4,11 @@ import hashlib
 import json
 import time
 
-import bcrypt
-import sqlalchemy as sa
 from aiohttp.hdrs import METH_ALL
 from aiopg.sa.result import RowProxy
 from aiovalidator import abort
+import bcrypt
+import sqlalchemy as sa
 
 from models.models import User
 
@@ -24,6 +24,7 @@ def generate_token(user_id):
 
 
 class JSONEncoder(json.JSONEncoder):
+
     def default(self, obj):  # pylint: disable=method-hidden
         if isinstance(obj, RowProxy):
             return dict(obj)
