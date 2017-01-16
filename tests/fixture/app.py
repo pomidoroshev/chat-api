@@ -12,6 +12,7 @@ app_settings.DATABASE['dbname'] = ENV.DB_NAME_TEST
 
 
 class MonkeyPatchWrapper(object):
+
     def __init__(self, monkeypatch, wrapped_object):
         super(MonkeyPatchWrapper, self).__setattr__(
             'monkeypatch',
@@ -64,6 +65,8 @@ def session_db(loop, settings):
 
     async def db_connect():
         nonlocal conn
+        if conn:
+            return conn
         engine = await create_engine(
             **settings.DATABASE,
             loop=loop

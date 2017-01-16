@@ -49,30 +49,3 @@ async def test_user_auth_bad_request(cli):
         'password': '',
     }))
     assert resp.status == 400
-
-# async def test_chat_list(cli):
-#     pass
-
-
-# async def test_chat_create(cli):
-#     pass
-
-
-# async def test_chat_login(cli):
-#     pass
-
-
-# async def test_chat_logout(cli):
-#     pass
-
-
-# async def test_chat_users(cli):
-#     pass
-
-
-# async def test_chat_history(cli):
-#     pass
-
-
-# async def test_chat_post(cli):
-#     pass

@@ -17,7 +17,8 @@ class List(BaseView):
             UserChat.chat == Chat.id,
             UserChat.user == self.request['user'].id,
         ))
-        query = sa.select([Chat, UserChat.user]).select_from(join)
+        query = sa.select([Chat, UserChat.user]).select_from(
+            join).order_by(Chat.id)
         chat_list = await (await self.db.execute(query)).fetchall()
 
         return web.json_response(chat_list, dumps=dumps)
@@ -171,14 +172,15 @@ class Post(BaseView):
         message = dict(message)
         message['login'] = self.request['user'].login
         msg = dumps(message)
-        if fields.id in self.request.app['websockets']:
+        if fields.id in self.request.app['websockets']:  # pragma: no cover
             for ws in self.request.app['websockets'][fields.id]:
+                # pragma: no cover
                 ws.send_str(msg)
 
         return web.json_response({})
 
 
-class Websocket(web.View):
+class Websocket(web.View):  # pragma: no cover
     async def get(self):
         chat_id = int(self.request.match_info['id'])
         if chat_id not in self.request.app['websockets']:

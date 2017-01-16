@@ -37,7 +37,7 @@ async def stop_background_tasks(app: web.Application):  # pragma: no cover
     await app['db'].wait_closed()
 
 
-def create_app(loop=None):
+def create_app(loop=None):  # pragma: no cover
     """
     Create app
     """
