@@ -97,4 +97,4 @@ async def test_chat_post_history(cli, session_db, create_user, user_token):
         'X-Auth-Token': user_token,
     })
     assert resp.status == 200
-    assert len(await resp.json()) == 1
+    assert len(await resp.json()) == 2

@@ -2,7 +2,7 @@ from aiohttp import web, WSMsgType
 from aiovalidator import IntegerField, StrField
 import sqlalchemy as sa
 
-from models.models import Chat, Message, User, UserChat
+from models.models import Chat, Message, User, UserChat, ActionType
 from utils import dumps
 from utils.auth import auth
 from views import BaseView
@@ -47,6 +47,13 @@ class Create(BaseView):
 
         await self.db.execute(query)
 
+        await add_message(
+            chat_id=chat.id,
+            action_type=ActionType.create.value,
+            request=self.request,
+            db=self.db,
+        )
+
         return web.json_response({
             'id': chat.id,
         })
@@ -64,6 +71,13 @@ class Login(BaseView):
     async def post(self):
         # TODO: Check if user is already in chat
         fields = self.request['fields']
+
+        await add_message(
+            chat_id=fields.id,
+            action_type=ActionType.login.value,
+            request=self.request,
+            db=self.db,
+        )
 
         query = sa.insert(UserChat).values(
             user=self.request['user'].id,
@@ -88,6 +102,12 @@ class Logout(BaseView):
         # TODO: Check if user is in chat
         fields = self.request['fields']
 
+        await add_message(
+            chat_id=fields.id,
+            action_type=ActionType.logout.value,
+            request=self.request,
+            db=self.db,
+        )
         query = sa.delete(UserChat).where(
             sa.and_(
                 UserChat.user == self.request['user'].id,
@@ -124,6 +144,7 @@ class History(BaseView):
             Message.id,
             Message.message,
             Message.datetime,
+            Message.action_type,
             User.login,
         ]).select_from(join)
         query = query.where(sa.and_(*where)).order_by(
@@ -131,6 +152,33 @@ class History(BaseView):
 
         history = await (await self.db.execute(query)).fetchall()
         return web.json_response(list(reversed(history)), dumps=dumps)
+
+
+async def add_message(*, chat_id, message='', action_type=None, request, db):
+    values = {
+        'user': request['user'].id,
+        'chat': chat_id,
+        'message': message,
+    }
+
+    if action_type:
+        values['action_type'] = action_type
+
+    query = sa.insert(Message).values(**values).returning(
+        Message.id,
+        Message.message,
+        Message.datetime,
+        Message.action_type,
+    )
+
+    message = await (await db.execute(query)).fetchone()
+    message = dict(message)
+    message['login'] = request['user'].login
+    msg = dumps(message)
+    if chat_id in request.app['websockets']:  # pragma: no cover
+        for ws in request.app['websockets'][chat_id]:
+            # pragma: no cover
+            ws.send_str(msg)
 
 
 class Post(BaseView):
@@ -146,24 +194,12 @@ class Post(BaseView):
     async def post(self):
         fields = self.request['fields']
 
-        query = sa.insert(Message).values(
-            user=self.request['user'].id,
-            chat=fields.id,
+        await add_message(
+            chat_id=fields.id,
             message=fields.message,
-        ).returning(
-            Message.id,
-            Message.message,
-            Message.datetime,
+            request=self.request,
+            db=self.db,
         )
-
-        message = await (await self.db.execute(query)).fetchone()
-        message = dict(message)
-        message['login'] = self.request['user'].login
-        msg = dumps(message)
-        if fields.id in self.request.app['websockets']:  # pragma: no cover
-            for ws in self.request.app['websockets'][fields.id]:
-                # pragma: no cover
-                ws.send_str(msg)
 
         return web.json_response({})
 

@@ -1,4 +1,5 @@
 from datetime import datetime  # pylint: disable=unused-import
+from enum import IntEnum
 
 import bcrypt
 import sqlalchemy as sa
@@ -11,7 +12,24 @@ __all__ = [
     'Message',
     'User',
     'UserChat',
+    'ActionType',
 ]
+
+
+class ActionType(IntEnum):
+    message = 0
+    create = 1
+    login = 2
+    logout = 3
+
+    @classmethod
+    def get_names(cls):
+        return {
+            cls.message: 'Сообщение',
+            cls.create: 'Создал чат',
+            cls.login: 'Вошел в чат',
+            cls.logout: 'Вышел из чата',
+        }
 
 
 class Chat(Base):
@@ -36,6 +54,7 @@ class Message(Base):
         nullable=False,
     )
     message = sa.Column(sa.Text)
+    action_type = sa.Column(sa.Integer, default=0, server_default='0')
 
 
 class User(Base):
