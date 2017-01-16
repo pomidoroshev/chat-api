@@ -1,5 +1,5 @@
 from aiohttp import web, WSMsgType
-from aiovalidator import IntegerField, StrField, abort
+from aiovalidator import IntegerField, StrField
 import sqlalchemy as sa
 
 from models.models import Chat, Message, User, UserChat
@@ -96,19 +96,6 @@ class Logout(BaseView):
         await self.db.execute(query)
 
         return web.json_response({})
-
-
-class Users(BaseView):
-    """
-    Get chat users
-    """
-
-    class Field:
-        id = IntegerField(methods={'get'})
-
-    async def get(self):
-        # TODO: Implement
-        raise abort(status=400, text='Not Implemented')
 
 
 class History(BaseView):
