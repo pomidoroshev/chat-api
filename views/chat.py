@@ -3,7 +3,8 @@ from aiovalidator import IntegerField, StrField
 import sqlalchemy as sa
 
 from models.models import Chat, Message, User, UserChat
-from utils import auth, dumps
+from utils import dumps
+from utils.auth import auth
 from views import BaseView
 
 

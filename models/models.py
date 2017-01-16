@@ -42,7 +42,7 @@ class User(Base):
     __tablename__ = 'user'
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
-    login = sa.Column(sa.String(255), index=True)
+    login = sa.Column(sa.String(255), unique=True)
     password = sa.Column(sa.String(255))
     token = sa.Column(sa.String(40), index=True)
 

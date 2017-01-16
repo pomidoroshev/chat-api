@@ -1,13 +1,8 @@
 import datetime
-from functools import wraps
 import json
 
 from aiohttp.hdrs import METH_ALL
 from aiopg.sa.result import RowProxy
-from aiovalidator import abort
-import sqlalchemy as sa
-
-from models.models import User
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -23,26 +18,6 @@ class JSONEncoder(json.JSONEncoder):
 
 def dumps(data):
     return json.dumps(data, ensure_ascii=False, cls=JSONEncoder)
-
-
-def auth(fn):
-    @wraps(fn)
-    async def wrapped(cls):
-        headers = cls.request.headers
-        if headers.get('X-Auth-Token'):
-            token = headers['X-Auth-Token']
-            conn = cls.request['conn']
-            query = sa.select([User]).select_from(User).where(
-                User.token == token)
-            res = await conn.execute(query)
-            user = await res.fetchone()
-
-            if user:
-                cls.request['user'] = user
-                return await fn(cls)
-        raise abort(status=401, text='Unauthorized')
-
-    return wrapped
 
 
 def set_default_headers(headers):
