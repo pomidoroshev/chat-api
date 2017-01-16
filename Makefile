@@ -1,4 +1,4 @@
-APP = app-name
+APP = chat
 APP_DEV = $(APP)-test
 
 IMAGE = $(APP)
