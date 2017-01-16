@@ -14,7 +14,7 @@ from middlewares import crossdomain, db
 from urls import urls
 
 
-async def start_background_tasks(app: web.Application):
+async def start_background_tasks(app: web.Application):  # pragma: no cover
     """
     Establish database connection
     """
@@ -22,7 +22,7 @@ async def start_background_tasks(app: web.Application):
     app['websockets'] = dict()
 
 
-async def stop_background_tasks(app: web.Application):
+async def stop_background_tasks(app: web.Application):  # pragma: no cover
     """
     Close database connection
     """
@@ -67,5 +67,5 @@ def create_app(loop=None):
     return app
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     web.run_app(create_app(), port=settings.PORT)

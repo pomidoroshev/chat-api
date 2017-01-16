@@ -19,6 +19,7 @@ class List(BaseView):
         ))
         query = sa.select([Chat, UserChat.user]).select_from(join)
         chat_list = await (await self.db.execute(query)).fetchall()
+
         return web.json_response(chat_list, dumps=dumps)
 
 
@@ -198,6 +199,7 @@ class Websocket(web.View):
                         ws_response.send_str(msg.data)
 
                 elif msg.type == WSMsgType.ERROR:
+                    # TODO: Replace with logging
                     print('Websocket exception %s', ws_response.exception())
 
             if ws_response in self.request.app['websockets'][chat_id]:

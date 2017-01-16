@@ -1,26 +1,13 @@
 import datetime
 from functools import wraps
-import hashlib
 import json
-import time
 
 from aiohttp.hdrs import METH_ALL
 from aiopg.sa.result import RowProxy
 from aiovalidator import abort
-import bcrypt
 import sqlalchemy as sa
 
 from models.models import User
-
-
-def validate_password(password, user_password):
-    password_hash = bcrypt.hashpw(password.encode(), user_password.encode())
-    return user_password == password_hash.decode()
-
-
-def generate_token(user_id):
-    token = '%s-%s' % (time.time(), user_id)
-    return hashlib.sha1(token.encode()).hexdigest()
 
 
 class JSONEncoder(json.JSONEncoder):

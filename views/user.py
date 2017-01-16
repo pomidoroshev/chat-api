@@ -1,10 +1,10 @@
 from aiohttp import web
 from aiovalidator import StrField, abort
-import bcrypt
+
 import sqlalchemy as sa
 
 from models.models import User
-from utils import generate_token, validate_password
+from utils.user import validate_password
 
 from . import BaseView
 
@@ -34,23 +34,14 @@ class Auth(BaseView):
             if not validate_password(fields.password, user.password):
                 raise abort(status=418, text='Wrong password')
         else:
-            password_hash = bcrypt.hashpw(
-                fields.password.encode(),
-                bcrypt.gensalt(),
+            user = await User.create_user(
+                fields.login,
+                fields.password,
+                conn=conn,
             )
-            query = sa.insert(User).values(
-                login=fields.login,
-                password=password_hash.decode(),
-            )
-            user = await (await conn.execute(query)).fetchone()
 
-        token = generate_token(user.id)
-        query = sa.update(User).where(User.id == user.id).values(
-            token=token,
-        )
-        await conn.execute(query)
+        token = await User.add_token(user.id, conn=conn)
 
         return web.json_response({
-            'success': True,
             'token': token,
         })
