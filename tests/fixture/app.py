@@ -2,7 +2,6 @@
 import json
 
 import pytest
-from jsonschema import ValidationError, validate
 from aiopg.sa import create_engine
 
 from main import create_app
@@ -81,18 +80,6 @@ def session_db(loop, settings):
     yield db_connect
     if conn:
         yield from conn.close()
-
-
-@pytest.fixture
-def json_valid():
-    def valid(_json, schema):
-        try:
-            validate(_json, schema)
-            return True
-        except ValidationError as e:
-            return str(e),
-
-    return valid
 
 
 @pytest.yield_fixture
