@@ -17,5 +17,5 @@ urls = (
     ('*', '/chat/{id}/logout', ChatLogout),
     ('*', '/chat/{id}/history', ChatHistory),
     ('*', '/chat/{id}/post', ChatPost),
-    ('*', '/chat/{id}/ws', ChatWebsocket),
+    ('*', '/ws', ChatWebsocket),
 )

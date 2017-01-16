@@ -206,7 +206,7 @@ class Post(BaseView):
 
 class Websocket(web.View):  # pragma: no cover
     async def get(self):
-        chat_id = int(self.request.match_info['id'])
+        chat_id = int(self.request.rel_url.query['id'])
         if chat_id not in self.request.app['websockets']:
             self.request.app['websockets'][chat_id] = set()
 
